@@ -360,5 +360,5 @@ if __name__ == '__main__':
 ```
 
     [NbConvertApp] Converting notebook raspberrypi_growlight.ipynb to markdown
-    [NbConvertApp] Writing 6387 bytes to README.md
+    [NbConvertApp] Writing 6391 bytes to README.md
 
