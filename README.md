@@ -2,6 +2,8 @@
 # default_exp raspberrypi_growlight
 ```
 
+This is a simple bare-bones webserver run on my raspberry pi to turn my dwarf citrus tree's grow light on at sunrise and off at sunset.
+
 # Imports
 
 
@@ -45,6 +47,8 @@ GPIO.output(PIN_GPIO, False)
 ```
 
 ### Timezone
+
+Needed to localize `datetime.now()`
 
 
 ```python
@@ -124,6 +128,9 @@ class SunlightSchedule(Schedule):
         s = astral.sun.sun(self.city.observer) # Get current status of sun
         if s['sunrise'] < T < s['sunset']: return 'ON'
         else:                              return 'OFF'
+    
+    def __repr__(self):
+        return f'sunlight schedule for {self.city.name}.'
 ```
 
 Make a schedule based on lowell 
@@ -145,7 +152,15 @@ Test out schedule
 
 ```python
 schedule = LowellSunlightSchedule()
+schedule
 ```
+
+
+
+
+    sunlight schedule for Lowell.
+
+
 
 
 ```python
@@ -156,7 +171,7 @@ schedule.get_status(T)
 
 
 
-    'ON'
+    'OFF'
 
 
 
@@ -250,6 +265,13 @@ STATUS = None
 
 ```python
 # export
+def _status():
+    return f'Growlight status: {STATUS}'
+```
+
+
+```python
+# export
 @app.route('/ON/', methods=['GET'])
 def ON():
     global STATUS
@@ -257,7 +279,7 @@ def ON():
         scheduler_growlight.pause()
     growlight.on()
     STATUS = 'ON'
-    return STATUS
+    return _status()
 ```
 
 
@@ -270,7 +292,7 @@ def OFF():
         scheduler_growlight.pause()
     growlight.off()
     STATUS = 'OFF'
-    return STATUS
+    return _status()
 ```
 
 
@@ -281,8 +303,8 @@ def START():
     global STATUS
     if not scheduler_growlight.running:
         scheduler_growlight.start()
-    STATUS = 'START'
-    return STATUS
+    STATUS = str(scheduler_growlight.schedule)
+    return _status()
 ```
 
 
@@ -293,8 +315,8 @@ def PAUSE():
     global STATUS
     if scheduler_growlight.running:
         scheduler_growlight.pause()
-    STATUS = 'PAUSE'
-    return STATUS
+    STATUS = 'paused ' + str(scheduler_growlight.schedule)
+    return _status()
 ```
 
 
@@ -302,8 +324,7 @@ def PAUSE():
 # export
 @app.route('/STATUS/', methods=['GET'])
 def STATUS():
-    global STATUS 
-    return STATUS
+    return _status()
 ```
 
 For testing purposes change name
@@ -339,10 +360,5 @@ if __name__ == '__main__':
 ```
 
     [NbConvertApp] Converting notebook raspberrypi_growlight.ipynb to markdown
-    [NbConvertApp] Writing 5714 bytes to README.md
+    [NbConvertApp] Writing 6387 bytes to README.md
 
-
-
-```python
-
-```

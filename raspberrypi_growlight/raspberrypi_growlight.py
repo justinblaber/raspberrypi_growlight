@@ -51,6 +51,9 @@ class SunlightSchedule(Schedule):
         if s['sunrise'] < T < s['sunset']: return 'ON'
         else:                              return 'OFF'
 
+    def __repr__(self):
+        return f'sunlight schedule for {self.city.name}.'
+
 # Cell
 class LowellSunlightSchedule(SunlightSchedule):
     def __init__(self):
@@ -92,6 +95,10 @@ scheduler_growlight = GrowlightScheduler(schedule, growlight)
 STATUS = None
 
 # Cell
+def _status():
+    return f'Growlight status: {STATUS}'
+
+# Cell
 @app.route('/ON/', methods=['GET'])
 def ON():
     global STATUS
@@ -99,7 +106,7 @@ def ON():
         scheduler_growlight.pause()
     growlight.on()
     STATUS = 'ON'
-    return STATUS
+    return _status()
 
 # Cell
 @app.route('/OFF/', methods=['GET'])
@@ -109,7 +116,7 @@ def OFF():
         scheduler_growlight.pause()
     growlight.off()
     STATUS = 'OFF'
-    return STATUS
+    return _status()
 
 # Cell
 @app.route('/START/', methods=['GET'])
@@ -117,8 +124,8 @@ def START():
     global STATUS
     if not scheduler_growlight.running:
         scheduler_growlight.start()
-    STATUS = 'START'
-    return STATUS
+    STATUS = str(scheduler_growlight.schedule)
+    return _status()
 
 # Cell
 @app.route('/PAUSE/', methods=['GET'])
@@ -126,14 +133,13 @@ def PAUSE():
     global STATUS
     if scheduler_growlight.running:
         scheduler_growlight.pause()
-    STATUS = 'PAUSE'
-    return STATUS
+    STATUS = 'paused ' + str(scheduler_growlight.schedule)
+    return _status()
 
 # Cell
 @app.route('/STATUS/', methods=['GET'])
 def STATUS():
-    global STATUS
-    return STATUS
+    return _status()
 
 # Cell
 if __name__ == '__main__':
