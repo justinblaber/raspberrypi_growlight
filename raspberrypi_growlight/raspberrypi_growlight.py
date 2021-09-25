@@ -26,7 +26,7 @@ GPIO.setup(PIN_GPIO, GPIO.OUT) # Output
 TIMEZONE = pytz.timezone('US/Eastern')
 
 # Cell
-INTERVAL = 60
+INTERVAL = 1
 
 # Cell
 class Growlight:
@@ -80,12 +80,7 @@ class GrowlightScheduler:
         else:                 raise RuntimeError(f'Unknown status: {status}')
 
     def start(self):    self.scheduler.start()
-    def pause(self):    self.scheduler.pause()
-    def resume(self):   self.scheduler.resume()
     def shutdown(self): self.scheduler.shutdown()
-
-    @property
-    def running(self):  return self.scheduler.running
 
 # Cell
 app = Flask(__name__)
@@ -102,8 +97,7 @@ def _status():
 @app.route('/ON/', methods=['GET'])
 def ON():
     global STATUS
-    if scheduler_growlight.running:
-        scheduler_growlight.pause()
+    scheduler_growlight.shutdown()
     growlight.on()
     STATUS = 'ON'
     return _status()
@@ -112,8 +106,7 @@ def ON():
 @app.route('/OFF/', methods=['GET'])
 def OFF():
     global STATUS
-    if scheduler_growlight.running:
-        scheduler_growlight.pause()
+    scheduler_growlight.shutdown()
     growlight.off()
     STATUS = 'OFF'
     return _status()
@@ -122,18 +115,16 @@ def OFF():
 @app.route('/START/', methods=['GET'])
 def START():
     global STATUS
-    if not scheduler_growlight.running:
-        scheduler_growlight.start()
+    scheduler_growlight.start()
     STATUS = str(scheduler_growlight.schedule)
     return _status()
 
 # Cell
-@app.route('/PAUSE/', methods=['GET'])
+@app.route('/STOP/', methods=['GET'])
 def PAUSE():
     global STATUS
-    if scheduler_growlight.running:
-        scheduler_growlight.pause()
-    STATUS = 'paused ' + str(scheduler_growlight.schedule)
+    scheduler_growlight.shutdown()
+    STATUS = 'stopped ' + str(scheduler_growlight.schedule)
     return _status()
 
 # Cell

@@ -63,7 +63,7 @@ Set interval in seconds to check schedule
 
 ```python
 # export
-INTERVAL = 60
+INTERVAL = 1
 ```
 
 # `Growlight`
@@ -171,7 +171,7 @@ schedule.get_status(T)
 
 
 
-    'OFF'
+    'ON'
 
 
 
@@ -212,12 +212,7 @@ class GrowlightScheduler:
         else:                 raise RuntimeError(f'Unknown status: {status}')
     
     def start(self):    self.scheduler.start()
-    def pause(self):    self.scheduler.pause()
-    def resume(self):   self.scheduler.resume()
     def shutdown(self): self.scheduler.shutdown()
-        
-    @property    
-    def running(self):  return self.scheduler.running
 ```
 
 
@@ -246,10 +241,10 @@ growlight.off()
 
 Create flask app with the following API:
 
-* `ON`     - pauses scheduler and turns growlight on
-* `OFF`    - pauses scheduler and turns growlight off
-* `START`  - starts growlight scheduler
-* `PAUSE`  - pauses growlight scheduler
+* `ON`     - shutsdown scheduler and turns growlight on
+* `OFF`    - shutsdown scheduler and turns growlight off
+* `START`  - starts scheduler
+* `STOP`   - shutsdown scheduler
 * `STATUS` - returns current status
 
 
@@ -275,8 +270,7 @@ def _status():
 @app.route('/ON/', methods=['GET'])
 def ON():
     global STATUS
-    if scheduler_growlight.running:
-        scheduler_growlight.pause()
+    scheduler_growlight.shutdown()
     growlight.on()
     STATUS = 'ON'
     return _status()
@@ -288,8 +282,7 @@ def ON():
 @app.route('/OFF/', methods=['GET'])
 def OFF():
     global STATUS
-    if scheduler_growlight.running:
-        scheduler_growlight.pause()
+    scheduler_growlight.shutdown()
     growlight.off()
     STATUS = 'OFF'
     return _status()
@@ -301,8 +294,7 @@ def OFF():
 @app.route('/START/', methods=['GET'])
 def START():
     global STATUS
-    if not scheduler_growlight.running:
-        scheduler_growlight.start()
+    scheduler_growlight.start()
     STATUS = str(scheduler_growlight.schedule)
     return _status()
 ```
@@ -310,12 +302,11 @@ def START():
 
 ```python
 # export
-@app.route('/PAUSE/', methods=['GET'])
+@app.route('/STOP/', methods=['GET'])
 def PAUSE(): 
     global STATUS
-    if scheduler_growlight.running:
-        scheduler_growlight.pause()
-    STATUS = 'paused ' + str(scheduler_growlight.schedule)
+    scheduler_growlight.shutdown()
+    STATUS = 'stopped ' + str(scheduler_growlight.schedule)
     return _status()
 ```
 
