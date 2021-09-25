@@ -245,8 +245,8 @@ growlight.off()
 
 Create flask app with the following API:
 
-* `ON`     - shutsdown scheduler and turns growlight on
-* `OFF`    - shutsdown scheduler and turns growlight off
+* `ON`     - stops scheduler and turns growlight on
+* `OFF`    - stops scheduler and turns growlight off
 * `START`  - starts scheduler
 * `STOP`   - stops scheduler
 * `STATUS` - returns current status
@@ -355,5 +355,5 @@ if __name__ == '__main__':
 ```
 
     [NbConvertApp] Converting notebook raspberrypi_growlight.ipynb to markdown
-    [NbConvertApp] Writing 6151 bytes to README.md
+    [NbConvertApp] Writing 6159 bytes to README.md
 
