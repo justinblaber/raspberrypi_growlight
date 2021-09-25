@@ -80,12 +80,11 @@ class GrowlightScheduler:
         else:                 raise RuntimeError(f'Unknown status: {status}')
 
     def start(self):
-        if not self.scheduler.running:
-            self.scheduler.start()
+        if self.scheduler.running: self.scheduler.resume()
+        else:                      self.scheduler.start()
 
-    def shutdown(self):
-        if self.scheduler.running:
-            self.scheduler.shutdown()
+    def stop(self):
+        if self.scheduler.running: self.scheduler.pause()
 
 # Cell
 app = Flask(__name__)
@@ -102,7 +101,7 @@ def _status():
 @app.route('/ON/', methods=['GET'])
 def ON():
     global STATUS
-    scheduler_growlight.shutdown()
+    scheduler_growlight.stop()
     growlight.on()
     STATUS = 'ON'
     return _status()
@@ -111,7 +110,7 @@ def ON():
 @app.route('/OFF/', methods=['GET'])
 def OFF():
     global STATUS
-    scheduler_growlight.shutdown()
+    scheduler_growlight.stop()
     growlight.off()
     STATUS = 'OFF'
     return _status()
@@ -128,7 +127,7 @@ def START():
 @app.route('/STOP/', methods=['GET'])
 def PAUSE():
     global STATUS
-    scheduler_growlight.shutdown()
+    scheduler_growlight.stop()
     STATUS = 'stopped ' + str(scheduler_growlight.schedule)
     return _status()
 

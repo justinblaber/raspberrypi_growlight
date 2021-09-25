@@ -212,12 +212,11 @@ class GrowlightScheduler:
         else:                 raise RuntimeError(f'Unknown status: {status}')
     
     def start(self):
-        if not self.scheduler.running:
-            self.scheduler.start()
+        if self.scheduler.running: self.scheduler.resume()
+        else:                      self.scheduler.start()    
         
-    def shutdown(self):
-        if self.scheduler.running:
-            self.scheduler.shutdown()
+    def stop(self):
+        if self.scheduler.running: self.scheduler.pause()
 ```
 
 
@@ -234,7 +233,7 @@ scheduler_growlight.start()
 
 
 ```python
-scheduler_growlight.shutdown()
+scheduler_growlight.stop()
 ```
 
 
@@ -249,7 +248,7 @@ Create flask app with the following API:
 * `ON`     - shutsdown scheduler and turns growlight on
 * `OFF`    - shutsdown scheduler and turns growlight off
 * `START`  - starts scheduler
-* `STOP`   - shutsdown scheduler
+* `STOP`   - stops scheduler
 * `STATUS` - returns current status
 
 
@@ -275,7 +274,7 @@ def _status():
 @app.route('/ON/', methods=['GET'])
 def ON():
     global STATUS
-    scheduler_growlight.shutdown()
+    scheduler_growlight.stop()
     growlight.on()
     STATUS = 'ON'
     return _status()
@@ -287,7 +286,7 @@ def ON():
 @app.route('/OFF/', methods=['GET'])
 def OFF():
     global STATUS
-    scheduler_growlight.shutdown()
+    scheduler_growlight.stop()
     growlight.off()
     STATUS = 'OFF'
     return _status()
@@ -310,7 +309,7 @@ def START():
 @app.route('/STOP/', methods=['GET'])
 def PAUSE(): 
     global STATUS
-    scheduler_growlight.shutdown()
+    scheduler_growlight.stop()
     STATUS = 'stopped ' + str(scheduler_growlight.schedule)
     return _status()
 ```
@@ -356,5 +355,5 @@ if __name__ == '__main__':
 ```
 
     [NbConvertApp] Converting notebook raspberrypi_growlight.ipynb to markdown
-    [NbConvertApp] Writing 6047 bytes to README.md
+    [NbConvertApp] Writing 6151 bytes to README.md
 
