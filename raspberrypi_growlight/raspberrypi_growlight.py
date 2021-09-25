@@ -79,8 +79,13 @@ class GrowlightScheduler:
         elif status == 'OFF': self.growlight.off()
         else:                 raise RuntimeError(f'Unknown status: {status}')
 
-    def start(self):    self.scheduler.start()
-    def shutdown(self): self.scheduler.shutdown()
+    def start(self):
+        if not self.scheduler.running:
+            self.scheduler.start()
+
+    def shutdown(self):
+        if self.scheduler.running:
+            self.scheduler.shutdown()
 
 # Cell
 app = Flask(__name__)
